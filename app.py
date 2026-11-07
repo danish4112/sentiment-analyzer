@@ -1,41 +1,46 @@
 import streamlit as st
+from textblob import TextBlob
 
-st.set_page_config(page_title="AI Sentiment Analyzer", page_icon="📊")
+# Professional UI Settings
+st.set_page_config(page_title="Pro Sentiment Analyzer", page_icon="📈", layout="centered")
 
-st.title("📊 AI-Powered Sentiment Analyzer (Urdu/English)")
-st.write("Yeh app aap ke text ka mood (Positive/Negative) analyze karti hai—chahe aap English mein likhein ya Roman Urdu mein!")
+st.title("📈 Commercial Sentiment Analysis Tool")
+st.markdown("Analyze customer reviews, social media feedback, and corporate text instantly using Natural Language Processing (NLP).")
+st.divider()
 
-# Text input for user
-user_text = st.text_area("Yahan koi bhi sentence likhein:", placeholder="Misal ke tor par: Yeh product bohot achi hai / I love this!")
+# Input area
+user_text = st.text_area("Enter text for analysis:", height=150, placeholder="e.g., The product quality is absolutely outstanding and the customer support is extremely helpful!")
 
-if st.button("Analyze Sentiment"):
-    if user_text.strip() != "":
-        text_lower = user_text.lower()
+if st.button("Analyze Text", type="primary"):
+    if user_text.strip():
+        # Using NLP for analysis
+        blob = TextBlob(user_text)
+        polarity = blob.sentiment.polarity
+        subjectivity = blob.sentiment.subjectivity
         
-        # English + Roman Urdu positive words
-        positive_words = [
-            "love", "great", "awesome", "good", "amazing", "best", "happy", "zabardast", 
-            "achi", "acha", "behtareen", "shandar", "pyar", "pasand", "kamaal", "bohot achi"
-        ]
+        st.subheader("Analysis Results:")
         
-        # English + Roman Urdu negative words
-        negative_words = [
-            "bad", "worst", "hate", "terrible", "poor", "sad", 
-            "bekar", "bura", "kharab", "fazool", "ghalat", "nahi"
-        ]
+        # Displaying results in a professional grid
+        col1, col2, col3 = st.columns(3)
         
-        pos_count = sum(1 for word in positive_words if word in text_lower)
-        neg_count = sum(1 for word in negative_words if word in text_lower)
-        
-        st.subheader("Results:")
-        if pos_count > neg_count:
-            st.success("😊 Positive Sentiment (Khushi, Tareef ya Achhi baat)")
-        elif neg_count > pos_count:
-            st.error("😞 Negative Sentiment (Narazgi, Bura ya Shikayat)")
-        else:
-            st.info("😐 Neutral Sentiment (Aam baat)")
+        with col1:
+            if polarity > 0.1:
+                st.success("Positive 😊")
+            elif polarity < -0.1:
+                st.error("Negative 😞")
+            else:
+                st.info("Neutral 😐")
+                
+        with col2:
+            st.metric(label="Polarity Score", value=f"{polarity:.2f}", help="-1 is highly negative, 1 is highly positive.")
             
-        # Extra Stats
-        st.write(f"**Total Words:** {len(user_text.split())}")
+        with col3:
+            st.metric(label="Subjectivity Score", value=f"{subjectivity:.2f}", help="0 is objective (fact), 1 is subjective (opinion).")
+            
+        st.divider()
+        st.markdown("**Detailed Breakdown:**")
+        st.progress(max(0.0, min(1.0, (polarity + 1) / 2))) # Progress bar for visual appeal
+        st.caption("Sentiment Meter (Left = Negative, Right = Positive)")
+        
     else:
-        st.warning("Barah-e-karam pehle kuch text enter karein!")
+        st.warning("Please enter some text to proceed with the analysis.")
